@@ -71,6 +71,7 @@ os200_list_node os200_list_remove(os200_list list,
 		list->tail = node->prev;
 	node->prev = NULL;
 	node->next = NULL;
+	list->count--;
 	return node;
 }
 
