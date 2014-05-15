@@ -66,14 +66,12 @@ os200_list_node os200_list_insert_sorted(os200_list list, void *data,
 
 os200_list_node os200_list_remove(os200_list list,
 	os200_list_node node) {
-	os200_list_node head = list->head;
 	os200_list_node before = node->prev;
 	os200_list_node after = node->next;
-	os200_list_node tail = list->tail;
-	if (head == node)
-		head = node->next;
-	if (tail == node)
-		tail = node->prev;
+	if (list->head == node)
+		list->head = node->next;
+	if (list->tail == node)
+		list->tail = node->prev;
 	if (before)
 		before->next = node->next;
 	if (after)
