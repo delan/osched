@@ -1,12 +1,18 @@
-CFLAGS=-ansi -Werror -Wall -Wextra -pedantic
+CFLAGS=-std=c99 -Werror -Wall -Wextra -pedantic -ggdb
 
-all: util.o list.o job.o
+all: robin
+
+robin: robin-backend.o util.o list.o job.o result.o
+
+robin-backend.o: robin-backend.c robin-backend.h list.h job.h
 
 util.o: util.c util.h
 
 list.o: list.c list.h
 
 job.o: job.c job.h list.h
+
+result.o: result.c result.h list.h job.h
 
 clean:
 	rm -f *.o
