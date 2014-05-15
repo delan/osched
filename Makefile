@@ -13,7 +13,7 @@ robin: $(OBJECTS_robin)
 sjf: $(OBJECTS_sjf)
 	$(CC) -o sjf $(OBJECTS_sjf)
 
-report.pdf:
+report.pdf: report.tex
 	pdflatex report.tex
 
 clean:
