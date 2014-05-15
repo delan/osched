@@ -3,21 +3,25 @@ BINARIES=robin sjf
 
 all: $(BINARIES)
 
-robin: robin-backend.o util.o list.o job.o result.o
+robin: robin.o robin-backend.o util.o list.o job.o result.o
 
-sjf: sjf-backend.o util.o list.o job.o result.o
+sjf: sjf.o sjf-backend.o util.o list.o job.o result.o
 
-robin-backend.o: robin-backend.c robin-backend.h list.h job.h
+robin.o: robin.c
 
-sjf-backend.o: sjf-backend.c sjf-backend.h list.h job.h
+sjf.o: sjf.c
 
-util.o: util.c util.h
+robin-backend.o: robin-backend.c
 
-list.o: list.c list.h
+sjf-backend.o: sjf-backend.c
 
-job.o: job.c job.h list.h
+util.o: util.c
 
-result.o: result.c result.h list.h job.h
+list.o: list.c
+
+job.o: job.c
+
+result.o: result.c
 
 clean:
 	rm -f *.o *.exe $(BINARIES)
