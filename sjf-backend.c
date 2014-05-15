@@ -35,11 +35,18 @@ os200_result os200_sjf_core(os200_list sorted_jobs) {
 	size_t completed_jobs = 0;
 	size_t total_jobs = sorted_jobs->count;
 	os200_list queue = os200_list_new();
+	os200_result result = { 0.0 / 0.0, 0.0 / 0.0 };
 
 	os200_list_node current_node = NULL;
-	os200_list_node incoming_node = sorted_jobs->head;
+	os200_list_node incoming_node = NULL;
 	os200_job current_job = NULL;
-	os200_job incoming_job = incoming_node->data;
+	os200_job incoming_job = NULL;
+
+	if (!sorted_jobs->count)
+		return result;
+
+	incoming_node = sorted_jobs->head;
+	incoming_job = incoming_node->data;
 
 	while (completed_jobs < total_jobs) {
 		OS200_DEBUG(
@@ -91,5 +98,7 @@ os200_result os200_sjf_core(os200_list sorted_jobs) {
 
 	os200_list_free(queue);
 
-	return os200_result_get(sorted_jobs);
+	result = os200_result_get(sorted_jobs);
+
+	return result;
 }
