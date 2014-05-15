@@ -1,4 +1,4 @@
-CFLAGS=-std=c99 -Werror -Wall -Wextra -pedantic -ggdb
+CFLAGS=-std=c99 -Werror -Wall -Wextra -pedantic -g
 BINARIES=robin sjf
 
 all: $(BINARIES)
