@@ -1,6 +1,7 @@
 CFLAGS=-std=c99 -Werror -Wall -Wextra -pedantic -ggdb
+BINARIES=robin sjf
 
-all: robin sjf
+all: $(BINARIES)
 
 robin: robin-backend.o util.o list.o job.o result.o
 
@@ -19,4 +20,4 @@ job.o: job.c job.h list.h
 result.o: result.c result.h list.h job.h
 
 clean:
-	rm -f *.o
+	rm -f *.o *.exe $(BINARIES)
