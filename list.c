@@ -7,6 +7,7 @@ os200_list_node os200_list_node_new(void *data) {
 	node->data = data;
 	node->prev = NULL;
 	node->next = NULL;
+	node->serial = 0;
 	return node;
 }
 
@@ -19,6 +20,7 @@ os200_list os200_list_new(void) {
 	list->count = 0;
 	list->head = NULL;
 	list->tail = NULL;
+	list->next_serial = 1;
 	return list;
 }
 
