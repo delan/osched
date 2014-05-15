@@ -1,10 +1,12 @@
 #ifndef OS200_LIST_H
 #define OS200_LIST_H
 
+#include <stddef.h>
+
 typedef struct os200_list_node {
 	void *data;
-	os200_list_node prev;
-	os200_list_node next;
+	struct os200_list_node *prev;
+	struct os200_list_node *next;
 } *os200_list_node;
 
 typedef struct os200_list {
@@ -25,13 +27,16 @@ os200_list os200_list_new(void);
 
 void os200_list_free(os200_list list);
 
-void os200_list_insert_last(os200_list list, void *data);
+os200_list_node os200_list_insert_after(os200_list list,
+	os200_list_node which, void *data);
 
-void os200_list_insert_sorted(os200_list list, void *data,
+os200_list_node os200_list_insert_sorted(os200_list list, void *data,
 	os200_list_comparator comparator);
 
-os200_list_node os200_list_remove_node(os200_list list, os200_list_node node);
+os200_list_node os200_list_remove(os200_list list,
+	os200_list_node node);
 
-void os200_list_foreach(os200_list list, os200_list_iterator iterator);
+void os200_list_foreach(os200_list list,
+	os200_list_iterator iterator, void *extra);
 
 #endif
