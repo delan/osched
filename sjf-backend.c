@@ -95,10 +95,7 @@ os200_result os200_sjf_core(os200_list sorted_jobs) {
 			now, completed_jobs, total_jobs
 		);
 	}
-
 	os200_list_free(queue);
-
 	result = os200_result_get(sorted_jobs);
-
 	return result;
 }
