@@ -28,7 +28,7 @@ os200_list os200_list_new(void);
 void os200_list_free(os200_list list);
 
 os200_list_node os200_list_insert_after(os200_list list,
-	os200_list_node which, void *data);
+	void *data, os200_list_node which);
 
 os200_list_node os200_list_insert_sorted(os200_list list, void *data,
 	os200_list_comparator comparator);

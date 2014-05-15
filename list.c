@@ -33,7 +33,7 @@ void os200_list_free(os200_list list) {
 }
 
 os200_list_node os200_list_insert_after(os200_list list,
-	os200_list_node which, void *data) {
+	void *data, os200_list_node which) {
 	os200_list_node before = which;
 	os200_list_node node = os200_list_node_new(data);
 	os200_list_node after = which ? which->next : list->head;
@@ -61,7 +61,7 @@ os200_list_node os200_list_insert_sorted(os200_list list, void *data,
 		before = after;
 		after = after->next;
 	}
-	return os200_list_insert_after(list, before, data);
+	return os200_list_insert_after(list, data, before);
 }
 
 os200_list_node os200_list_remove(os200_list list,
