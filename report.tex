@@ -1,0 +1,75 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{parskip}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{multirow}
+\usepackage[usenames,dvipsnames]{color}
+\hypersetup{
+	colorlinks,
+	pdfauthor=Delan Azabani,
+	pdftitle=Operating Systems 200: scheduler assignment
+}
+\lstset{basicstyle=\ttfamily, basewidth=0.5em}
+
+\title{Operating Systems 200\\Scheduler assignment}
+\date{May 18, 2014}
+\author{Delan Azabani}
+
+\begin{document}
+
+\maketitle
+
+\section{Read me}
+
+This assignment should compile and run on any reasonably POSIX compliant
+environment. The assignment was tested and debugged using \texttt{gdb}, then
+checked for memory leaks and invalid accesses using \texttt{valgrind} on the
+following platforms:
+
+\begin{itemize}
+	\item \texttt{neptune.azabani.com} ---
+	      Cygwin x86-64,
+	      \texttt{gcc} 4.8.2,
+	      GNU Make 4.0
+	\item \texttt{ark.cs.curtin.edu.au} ---
+	      Linux 2.6.19 x86-32,
+	      \texttt{gcc} 4.0.2,
+	      GNU Make 3.80
+	\item \texttt{ling.comssa.org.au} ---
+	      Linux 3.2.0 x86-64,
+	      \texttt{gcc} 4.7.2,
+	      NetBSD \texttt{pmake} 1.111
+\end{itemize}
+
+Instructions for compilation and execution:
+
+\begin{itemize}
+	\item To compile all binaries and the report, type \texttt{make}
+	\item To compile only the binaries, type \texttt{make binaries}
+	\item To compile only the report, type \texttt{make report.pdf}
+	\item To delete all generated files, type \texttt{make clean}
+	\item To run the standalone RR simulator, type \texttt{./robin}
+	\item To run the standalone SJF simulator, type \texttt{./sjf}
+	\item To run the threaded simulator, type \texttt{./simulator}
+\end{itemize}
+
+\section{Assumptions made}
+
+The input file is assumed to conform to the expected format as outlined in the
+assignment specification. Scarce checking is done other than ensuring that the
+file exists, is readable, and has at least one job entry.
+
+The file format for input to the Shortest Job First scheduler shall be the same
+as for the Round Robin scheduler, that is, the first line contains a quantum
+value. The quantum value is simply ignored by the SJF scheduler, much like
+priorities would be ignored if they were included in a SJF or FCFS scheduler.
+
+Where multiple jobs arrive at the Round Robin scheduler simultaneously, they
+are queued in the same order as they appear in the input file. The jobs are not
+further sorted by duration, for example.
+
+\end{document}
