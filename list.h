@@ -7,12 +7,14 @@ typedef struct os200_list_node {
 	void *data;
 	struct os200_list_node *prev;
 	struct os200_list_node *next;
+	unsigned serial;
 } *os200_list_node;
 
 typedef struct os200_list {
 	size_t count;
 	os200_list_node head;
 	os200_list_node tail;
+	unsigned next_serial;
 } *os200_list;
 
 typedef void (*os200_list_iterator)(void *data, void *extra);

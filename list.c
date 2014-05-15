@@ -49,6 +49,8 @@ os200_list_node os200_list_insert_after(os200_list list,
 	} else {
 		list->tail = node;
 	}
+	node->serial = list->next_serial;
+	list->next_serial++;
 	list->count++;
 	return node;
 }
