@@ -48,10 +48,6 @@ os200_result os200_robin_core(os200_list sorted_jobs, double quantum) {
 	incoming_job = incoming_node->data;
 
 	while (completed_jobs < total_jobs) {
-		OS200_DEBUG(
-			"%f: completed %zu of %zu",
-			now, completed_jobs, total_jobs
-		);
 		if (queue->head) {
 			/* there exists a job that is ready to run */
 			current_node = os200_list_remove(
@@ -109,6 +105,10 @@ os200_result os200_robin_core(os200_list sorted_jobs, double quantum) {
 			if (incoming_node)
 				incoming_job = incoming_node->data;
 		}
+		OS200_DEBUG(
+			"%f: completed %zu of %zu",
+			now, completed_jobs, total_jobs
+		);
 	}
 
 	os200_list_free(queue);
