@@ -10,7 +10,7 @@
 \hypersetup{
 	colorlinks,
 	pdfauthor=Delan Azabani,
-	pdftitle=Operating Systems 200: scheduler assignment
+	pdftitle=Operating Systems 200: Scheduler assignment
 }
 \lstset{basicstyle=\ttfamily, basewidth=0.5em}
 
@@ -33,14 +33,18 @@ following platforms:
 	\item \texttt{neptune.azabani.com} ---
 	      Cygwin x86-64,
 	      \texttt{gcc} 4.8.2,
-	      GNU Make 4.0
+	      GNU \texttt{make} 4.0
 	\item \texttt{ark.cs.curtin.edu.au} ---
 	      Linux 2.6.19 x86-32,
 	      \texttt{gcc} 4.0.2,
-	      GNU Make 3.80
+	      GNU \texttt{make} 3.80
 	\item \texttt{ling.comssa.org.au} ---
 	      Linux 3.2.0 x86-64,
 	      \texttt{gcc} 4.7.2,
+	      GNU \texttt{make} 3.81
+	\item \texttt{ling.comssa.org.au} ---
+	      Linux 3.2.0 x86-64,
+	      \texttt{clang} 3.0,
 	      NetBSD \texttt{pmake} 1.111
 \end{itemize}
 
@@ -55,6 +59,8 @@ Instructions for compilation and execution:
 	\item To run the standalone SJF simulator, type \texttt{./sjf}
 	\item To run the threaded simulator, type \texttt{./simulator}
 \end{itemize}
+
+\newpage
 
 \section{Assumptions made}
 
