@@ -11,4 +11,6 @@ typedef struct os200_result {
 
 os200_result os200_result_get(os200_list jobs);
 
+void os200_result_print(os200_result result);
+
 #endif

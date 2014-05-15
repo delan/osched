@@ -1,5 +1,7 @@
 #include "result.h"
 
+#include <stdio.h>
+
 typedef struct os200_result_sums {
 	double sum_waiting;
 	double sum_turnaround;
@@ -28,5 +30,16 @@ os200_result os200_result_get(os200_list jobs) {
 		sums.sum_turnaround /
 		jobs->count;
 	return result;
+}
+
+void os200_result_print(os200_result result) {
+	printf(
+		"Average waiting time:    %f\n",
+		result.average_waiting
+	);
+	printf(
+		"Average turnaround time: %f\n",
+		result.average_turnaround
+	);
 }
 

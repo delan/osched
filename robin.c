@@ -5,23 +5,21 @@
 #include <stdlib.h>
 #include <string.h>
 
-int main(void) {
+int main(int argc, char **argv) {
 	const char prompt[] = "RR simulation";
 	os200_result result;
-	char *filename = os200_read_line(prompt);
-	while (strlen(filename) && strcmp(filename, "QUIT")) {
-		result = os200_robin_file(filename);
-		printf(
-			"Average waiting time:    %f\n",
-			result.average_waiting
-		);
-		printf(
-			"Average turnaround time: %f\n",
-			result.average_turnaround
-		);
-		free(filename);
-		filename = os200_read_line(prompt);
+	if (argc > 1) {
+		result = os200_robin_file(argv[1]);
+		os200_result_print(result);
+	} else {
+		char *filename = os200_read_line(prompt);
+		while (strlen(filename) && strcmp(filename, "QUIT")) {
+			result = os200_robin_file(filename);
+			os200_result_print(result);
+			free(filename);
+			filename = os200_read_line(prompt);
+		}
+		free(filename);	
 	}
-	free(filename);
 	return 0;
 }
