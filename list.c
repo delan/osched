@@ -1,6 +1,5 @@
 #include "list.h"
 
-#include <stdio.h>
 #include <stdlib.h>
 
 os200_list_node os200_list_node_new(void *data) {
