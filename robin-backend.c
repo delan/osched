@@ -17,6 +17,11 @@ os200_result os200_robin_file(const char *filename) {
 		quantum = os200_job_scan(input, sorted_jobs);
 		fclose(input);
 		result = os200_robin_core(sorted_jobs, quantum);
+		os200_list_foreach(
+			sorted_jobs,
+			os200_job_free_in_list,
+			NULL
+		);
 		os200_list_free(sorted_jobs);
 	} else {
 		perror(__func__);

@@ -1,6 +1,7 @@
 #include "job.h"
 
 #include <stdlib.h>
+#include "util.h"
 
 os200_job os200_job_new(double arrival, double duration) {
 	os200_job job = malloc(sizeof(struct os200_job));
@@ -13,6 +14,12 @@ os200_job os200_job_new(double arrival, double duration) {
 
 void os200_job_free(os200_job job) {
 	free(job);
+}
+
+void os200_job_free_in_list(void *data, void *extra) {
+	os200_job job = data;
+	os200_job_free(job);
+	OS200_UNUSED(extra);
 }
 
 int os200_job_compare_arrival(void *a, void *b) {
