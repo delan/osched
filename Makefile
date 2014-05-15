@@ -1,29 +1,17 @@
 CFLAGS=-std=c99 -Werror -Wall -Wextra -pedantic -g
 BINARIES=robin sjf
+OBJECTS_robin=robin.o robin-backend.o util.o list.o job.o result.o
+OBJECTS_sjf=sjf.o sjf-backend.o util.o list.o job.o result.o
 
 all: binaries report.pdf
 
 binaries: $(BINARIES)
 
-robin: robin.o robin-backend.o util.o list.o job.o result.o
+robin: $(OBJECTS_robin)
+	$(CC) -o robin $(OBJECTS_robin)
 
-sjf: sjf.o sjf-backend.o util.o list.o job.o result.o
-
-robin.o: robin.c
-
-sjf.o: sjf.c
-
-robin-backend.o: robin-backend.c
-
-sjf-backend.o: sjf-backend.c
-
-util.o: util.c
-
-list.o: list.c
-
-job.o: job.c
-
-result.o: result.c
+sjf: $(OBJECTS_sjf)
+	$(CC) -o sjf $(OBJECTS_sjf)
 
 report.pdf:
 	pdflatex report.tex
