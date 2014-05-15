@@ -6,6 +6,7 @@ os200_job os200_job_new(double arrival, double duration) {
 	os200_job job = malloc(sizeof(struct os200_job));
 	job->duration = duration;
 	job->arrival = arrival;
+	job->completion = 0.0 / 0.0; /* IEEE 754 NaN */
 	job->remaining = duration;
 	return job;
 }
