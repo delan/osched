@@ -1,5 +1,6 @@
 #include "list.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 
 os200_list_node os200_list_node_new(void *data) {
@@ -36,19 +37,17 @@ os200_list_node os200_list_insert_after(os200_list list,
 	os200_list_node which, void *data) {
 	os200_list_node before = which;
 	os200_list_node node = os200_list_node_new(data);
-	os200_list_node after = which ? which->next : NULL;
+	os200_list_node after = which ? which->next : list->head;
 	if (before) {
 		before->next = node;
 		node->prev = before;
+	} else {
+		list->head = node;
 	}
 	if (after) {
 		node->next = after;
 		after->prev = node;
-	}
-	if (before == NULL) {
-		list->head = node;
-	}
-	if (after == NULL) {
+	} else {
 		list->tail = node;
 	}
 	list->count++;
@@ -57,10 +56,13 @@ os200_list_node os200_list_insert_after(os200_list list,
 
 os200_list_node os200_list_insert_sorted(os200_list list, void *data,
 	os200_list_comparator comparator) {
-	os200_list_node cursor = list->head;
-	while (cursor && comparator(cursor->data, data) < 0)
-		cursor = cursor->next;
-	return os200_list_insert_after(list, cursor, data);
+	os200_list_node before = NULL;
+	os200_list_node after = list->head;
+	while (after && comparator(after->data, data) <= 0) {
+		before = after;
+		after = after->next;
+	}
+	return os200_list_insert_after(list, before, data);
 }
 
 os200_list_node os200_list_remove(os200_list list,
