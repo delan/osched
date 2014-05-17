@@ -67,8 +67,8 @@ int main(void) {
 		putchar('\n');
 
 		OS200_RESET(filename);
-		OS200_UNLOCK_RESET(robin_result);
-		OS200_UNLOCK_RESET(sjf_result);
+		OS200_RESET_UNLOCK(robin_result);
+		OS200_RESET_UNLOCK(sjf_result);
 		OS200_LOCK(filename);
 		free(filename);
 		filename = os200_read_line(prompt);

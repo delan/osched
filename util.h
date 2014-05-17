@@ -58,9 +58,9 @@ OS200_LOCKED_EXTERN(stderr);
 	NAME ## _ready = 0; \
 } while (0)
 
-#define OS200_UNLOCK_RESET(NAME) do { \
-	OS200_UNLOCK(NAME); \
+#define OS200_RESET_UNLOCK(NAME) do { \
 	OS200_RESET(NAME); \
+	OS200_UNLOCK(NAME); \
 } while (0)
 
 typedef enum os200_scheduler {
