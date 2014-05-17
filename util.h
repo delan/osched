@@ -4,7 +4,7 @@
 #include <pthread.h>
 
 #define OS200_LOCKED_GLOBAL(NAME) \
-	pthread_mutex_t NAME ## _mutex
+	pthread_mutex_t NAME ## _mutex = PTHREAD_MUTEX_INITIALIZER
 
 #define OS200_LOCKED_EXTERN(NAME) \
 	extern pthread_mutex_t NAME ## _mutex
