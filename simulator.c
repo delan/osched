@@ -16,42 +16,47 @@ OS200_NEW_SYNCHRONISED_GLOBAL(os200_result, robin_result);
 OS200_NEW_SYNCHRONISED_GLOBAL(os200_result, sjf_result);
 
 char *filename;
+int quit;
 
-void *worker(void *extra) {
-	os200_scheduler scheduler = * (os200_scheduler *) extra;
+void *robin_loop(void *extra) {
 	while (1) {
-		switch (scheduler) {
-		case OS200_SCHEDULER_ROBIN:
-			OS200_WAIT(robin);
-			OS200_LOCK(robin_result);
-			robin_result = os200_robin_file(filename);
-			OS200_SIGNAL(robin_result);
+		OS200_WAIT(robin);
+		if (quit) {
 			OS200_RESET(robin);
 			break;
-		case OS200_SCHEDULER_SJF:
-			OS200_WAIT(sjf);
-			OS200_LOCK(sjf_result);
-			sjf_result = os200_sjf_file(filename);
-			OS200_SIGNAL(sjf_result);
+		}
+		OS200_LOCK(robin_result);
+		robin_result = os200_robin_file(filename);
+		OS200_SIGNAL(robin_result);
+		OS200_RESET(robin);
+	}
+	OS200_UNUSED(extra);
+	return NULL;
+}
+
+void *sjf_loop(void *extra) {
+	while (1) {
+		OS200_WAIT(sjf);
+		if (quit) {
 			OS200_RESET(sjf);
 			break;
 		}
+		OS200_LOCK(sjf_result);
+		sjf_result = os200_sjf_file(filename);
+		OS200_SIGNAL(sjf_result);
+		OS200_RESET(sjf);
 	}
+	OS200_UNUSED(extra);
 	return NULL;
 }
 
 int main(void) {
 	const char prompt[] = "Simulation";
-	os200_scheduler robin_scheduler = OS200_SCHEDULER_ROBIN;
-	os200_scheduler sjf_scheduler = OS200_SCHEDULER_SJF;
 	pthread_t robin_thread;
 	pthread_t sjf_thread;
 
-	pthread_create(&robin_thread, NULL, worker, &robin_scheduler);
-	pthread_create(&sjf_thread, NULL, worker, &sjf_scheduler);
-
-	pthread_detach(robin_thread);
-	pthread_detach(sjf_thread);
+	pthread_create(&robin_thread, NULL, robin_loop, NULL);
+	pthread_create(&sjf_thread, NULL, sjf_loop, NULL);
 
 	OS200_LOCK(robin);
 	OS200_LOCK(sjf);
@@ -74,7 +79,14 @@ int main(void) {
 		free(filename);
 		filename = os200_read_line(prompt);
 	}
+	quit = 1;
+	OS200_SIGNAL(sjf);
+	OS200_SIGNAL(robin);
 	free(filename);
 	putchar('\n');
+
+	pthread_join(sjf_thread, NULL);
+	pthread_join(robin_thread, NULL);
+	
 	return 0;
 }

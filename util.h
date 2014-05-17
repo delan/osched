@@ -86,13 +86,6 @@ OS200_LOCKED_EXTERN(stderr);
 		OS200_PRINT("%s: %s", #NAME, strerror(retval)); \
 } while (0)
 
-/* simple scheduler type identifier */
-
-typedef enum os200_scheduler {
-	OS200_SCHEDULER_ROBIN,
-	OS200_SCHEDULER_SJF
-} os200_scheduler;
-
 /* generic utility functions */
 
 #define OS200_UNUSED(NAME) do { \
