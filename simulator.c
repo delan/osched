@@ -87,6 +87,6 @@ int main(void) {
 
 	pthread_join(sjf_thread, NULL);
 	pthread_join(robin_thread, NULL);
-	
+
 	return 0;
 }
