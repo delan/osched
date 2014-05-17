@@ -12,11 +12,11 @@ void os200_result_step(void *data, void *extra) {
 	os200_result_sums *sums = (os200_result_sums *) extra;
 	sums->sum_waiting +=
 		job->completion -
-		job->arrival;
-	sums->sum_turnaround +=
-		job->completion -
 		job->arrival -
 		job->duration;
+	sums->sum_turnaround +=
+		job->completion -
+		job->arrival;
 }
 
 os200_result os200_result_get(os200_list jobs) {
