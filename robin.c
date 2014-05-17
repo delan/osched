@@ -19,7 +19,7 @@ int main(int argc, char **argv) {
 			free(filename);
 			filename = os200_read_line(prompt);
 		}
-		free(filename);	
+		free(filename);
 	}
 	return 0;
 }
