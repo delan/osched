@@ -75,5 +75,6 @@ int main(void) {
 		filename = os200_read_line(prompt);
 	}
 	free(filename);
+	putchar('\n');
 	return 0;
 }
