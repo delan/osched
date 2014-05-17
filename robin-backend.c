@@ -1,6 +1,8 @@
 #include "robin-backend.h"
 
 #include <stdio.h>
+#include <string.h>
+#include <errno.h>
 
 #include "util.h"
 #include "job.h"
@@ -24,7 +26,7 @@ os200_result os200_robin_file(const char *filename) {
 		);
 		os200_list_free(sorted_jobs);
 	} else {
-		perror(__func__);
+		OS200_PRINT("%s: %s", filename, strerror(errno));
 	}
 	return result;
 }
