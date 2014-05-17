@@ -18,7 +18,7 @@ OS200_LOCKED_EXTERN(stderr);
 	pthread_mutex_unlock(&stderr_mutex); \
 } while (0)
 
-#define OS200_ERROR(FORMAT, ...) do { \
+#define OS200_IMPORTANT(FORMAT, ...) do { \
 	pthread_mutex_lock(&stderr_mutex); \
 	fprintf(stderr, "%s: " FORMAT "\n", __func__, __VA_ARGS__); \
 	pthread_mutex_unlock(&stderr_mutex); \
@@ -27,7 +27,7 @@ OS200_LOCKED_EXTERN(stderr);
 #define OS200_CHECK(NAME, ...) do { \
 	int retval = NAME(__VA_ARGS__); \
 	if (retval) \
-		OS200_ERROR("%s: %s", #NAME, strerror(retval)); \
+		OS200_IMPORTANT("%s: %s", #NAME, strerror(retval)); \
 } while (0)
 
 #define OS200_SYNCHRONISED_GLOBAL(NAME) \
