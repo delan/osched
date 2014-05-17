@@ -21,6 +21,8 @@ int os200_job_compare_arrival(void *a, void *b);
 
 int os200_job_compare_duration(void *a, void *b);
 
+int os200_job_compare_arrival_duration(void *a, void *b);
+
 double os200_job_scan(FILE *input, os200_list output);
 
 #endif

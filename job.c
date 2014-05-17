@@ -44,6 +44,17 @@ int os200_job_compare_duration(void *a, void *b) {
 	return result;
 }
 
+int os200_job_compare_arrival_duration(void *a, void *b) {
+	int result;
+	int arrival_comparison = os200_job_compare_arrival(a, b);
+	int duration_comparison = os200_job_compare_duration(a, b);
+	if (arrival_comparison)
+		result = arrival_comparison;
+	else
+		result = duration_comparison;
+	return result;
+}
+
 double os200_job_scan(FILE *input, os200_list output) {
 	double quantum, arrival, duration;
 	fscanf(input, "%lf", &quantum);
