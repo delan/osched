@@ -11,11 +11,9 @@
 
 OS200_LOCKED_EXTERN(stderr);
 
-#define OS200_DEBUG(...) do { \
+#define OS200_DEBUG(format, ...) do { \
 	OS200_LOCK(stderr); \
-	fprintf(stderr, "%s: ", __func__); \
-	fprintf(stderr, __VA_ARGS__); \
-	fputc('\n', stderr); \
+	fprintf(stderr, "%s: " format "\n", __func__, __VA_ARGS__); \
 	OS200_UNLOCK(stderr); \
 } while (0)
 
