@@ -155,6 +155,13 @@ A maximum filename length of 10 bytes is \textit{not} assumed. The
 virtually unlimited length from standard input, requiring only $O(\lg n)$ calls
 to \texttt{realloc(3)}.
 
+When a job in the Round Robin scheduler has not completed its entire execution
+after one of its time slices, it is assumed that the job should be requeued
+\textit{after} newly arriving jobs are enqueued. The order --- before or after
+--- is not specified in the lecture slides nor the textbook, but I have made
+this choice because it matches the method required to answer the question
+3(e)(i) of this semester's Mid-Semester Test.
+
 \newpage
 
 \section{Sample input and output listing}
