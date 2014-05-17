@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+OS200_SYNCHRONISED_GLOBAL(stderr);
+
 int main(int argc, char **argv) {
 	const char prompt[] = "RR simulation";
 	os200_result result;

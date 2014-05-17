@@ -1,15 +1,17 @@
+#include "util.h"
+#include "robin-backend.h"
+#include "sjf-backend.h"
+
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <pthread.h>
 
-#include "util.h"
-#include "robin-backend.h"
-#include "sjf-backend.h"
+OS200_LOCKED_GLOBAL(stderr);
 
-OS200_SYNCHRONISED_GLOBAL(os200_result, robin_result);
-OS200_SYNCHRONISED_GLOBAL(os200_result, sjf_result);
-OS200_SYNCHRONISED_GLOBAL(char *, filename);
+OS200_NEW_SYNCHRONISED_GLOBAL(os200_result, robin_result);
+OS200_NEW_SYNCHRONISED_GLOBAL(os200_result, sjf_result);
+OS200_NEW_SYNCHRONISED_GLOBAL(char *, filename);
 
 void *worker(void *extra) {
 	os200_scheduler scheduler = * (os200_scheduler *) extra;

@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+OS200_LOCKED_GLOBAL(stderr);
+
 int main(int argc, char **argv) {
 	const char prompt[] = "SJF simulation";
 	os200_result result;
