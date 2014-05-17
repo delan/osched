@@ -52,6 +52,8 @@ os200_result os200_robin_core(os200_list sorted_jobs, double quantum) {
 	incoming_job = incoming_node->data;
 
 	while (completed_jobs < total_jobs) {
+		current_node = NULL;
+		current_job = NULL;
 		if (queue->head) {
 			/* there exists a job that is ready to run */
 			current_node = os200_list_remove(
@@ -64,11 +66,7 @@ os200_result os200_robin_core(os200_list sorted_jobs, double quantum) {
 					current_job->duration,
 					quantum
 				);
-				os200_list_insert_after(
-					queue,
-					current_job,
-					queue->tail
-				);
+				/* previously requeued here */
 				current_job->remaining -= quantum;
 				now += quantum;
 			} else {
@@ -87,6 +85,7 @@ os200_result os200_robin_core(os200_list sorted_jobs, double quantum) {
 					current_job->arrival,
 					current_job->duration
 				);
+				current_job = NULL;
 			}
 			os200_list_node_free(current_node);
 		} else {
@@ -108,6 +107,13 @@ os200_result os200_robin_core(os200_list sorted_jobs, double quantum) {
 			incoming_node = incoming_node->next;
 			if (incoming_node)
 				incoming_job = incoming_node->data;
+		}
+		if (current_job) {
+			os200_list_insert_after(
+				queue,
+				current_job,
+				queue->tail
+			);
 		}
 		OS200_DEBUG(
 			"%f: completed %zu of %zu",
