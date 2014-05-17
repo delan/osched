@@ -3,39 +3,13 @@
 
 #include <pthread.h>
 
+/* shorthand declarations for locks and condition variables */
+
 #define OS200_LOCKED_GLOBAL(NAME) \
 	pthread_mutex_t NAME ## _mutex = PTHREAD_MUTEX_INITIALIZER
 
 #define OS200_LOCKED_EXTERN(NAME) \
 	extern pthread_mutex_t NAME ## _mutex
-
-OS200_LOCKED_EXTERN(stderr);
-
-#define OS200_PRINT(FORMAT, ...) do { \
-	pthread_mutex_lock(&stderr_mutex); \
-	fprintf( \
-		stderr, \
-		"%s:%d: %s: " FORMAT "\n", \
-		__FILE__, \
-		__LINE__, \
-		__func__, \
-		__VA_ARGS__ \
-	); \
-	pthread_mutex_unlock(&stderr_mutex); \
-} while (0)
-
-#ifdef DEBUG
-	#define OS200_DEBUG OS200_PRINT
-#else
-	#define OS200_DEBUG(...) do { \
-	} while (0)
-#endif
-
-#define OS200_CHECK(NAME, ...) do { \
-	int retval = NAME(__VA_ARGS__); \
-	if (retval) \
-		OS200_PRINT("%s: %s", #NAME, strerror(retval)); \
-} while (0)
 
 #define OS200_SYNCHRONISED_GLOBAL(NAME) \
 	int NAME ## _ready = 0; \
@@ -46,9 +20,7 @@ OS200_LOCKED_EXTERN(stderr);
 	TYPE NAME; \
 	OS200_SYNCHRONISED_GLOBAL(NAME)
 
-#define OS200_UNUSED(NAME) do { \
-	((void) sizeof(NAME)); \
-} while (0)
+/* basic locking and signalling patterns */
 
 #define OS200_WAIT(NAME) do { \
 	OS200_CHECK( \
@@ -82,10 +54,50 @@ OS200_LOCKED_EXTERN(stderr);
 	OS200_UNLOCK(NAME); \
 } while (0)
 
+/* thread-safe printf that includes source filename, line and function */
+
+OS200_LOCKED_EXTERN(stderr);
+
+#define OS200_PRINT(FORMAT, ...) do { \
+	pthread_mutex_lock(&stderr_mutex); \
+	fprintf( \
+		stderr, \
+		"%s:%d: %s: " FORMAT "\n", \
+		__FILE__, \
+		__LINE__, \
+		__func__, \
+		__VA_ARGS__ \
+	); \
+	pthread_mutex_unlock(&stderr_mutex); \
+} while (0)
+
+#ifdef DEBUG
+	#define OS200_DEBUG OS200_PRINT
+#else
+	#define OS200_DEBUG(...) do { \
+	} while (0)
+#endif
+
+/* call a library function, check its return value and report errors */
+
+#define OS200_CHECK(NAME, ...) do { \
+	int retval = NAME(__VA_ARGS__); \
+	if (retval) \
+		OS200_PRINT("%s: %s", #NAME, strerror(retval)); \
+} while (0)
+
+/* simple scheduler type identifier */
+
 typedef enum os200_scheduler {
 	OS200_SCHEDULER_ROBIN,
 	OS200_SCHEDULER_SJF
 } os200_scheduler;
+
+/* generic utility functions */
+
+#define OS200_UNUSED(NAME) do { \
+	((void) sizeof(NAME)); \
+} while (0)
 
 char *os200_read_line(const char *prompt);
 
