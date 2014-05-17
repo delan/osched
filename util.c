@@ -34,9 +34,9 @@ int os200_wait_real(
 	pthread_mutex_t *mutex,
 	pthread_cond_t *condition_variable
 ) {
-	pthread_mutex_lock(mutex);
+	OS200_CHECK(pthread_mutex_lock, mutex);
 	while (*state_variable == 0)
-		pthread_cond_wait(condition_variable, mutex);
+		OS200_CHECK(pthread_cond_wait, condition_variable, mutex);
 	return 1;
 }
 
@@ -46,7 +46,7 @@ int os200_signal_real(
 	pthread_cond_t *condition_variable
 ) {
 	*state_variable = 1;
-	pthread_cond_broadcast(condition_variable);
-	pthread_mutex_unlock(mutex);
+	OS200_CHECK(pthread_cond_broadcast, condition_variable);
+	OS200_CHECK(pthread_mutex_unlock, mutex);
 	return 1;
 }
