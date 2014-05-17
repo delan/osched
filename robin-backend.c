@@ -33,7 +33,7 @@ os200_result os200_robin_core(os200_list sorted_jobs, double quantum) {
 	double now = 0.0;
 	size_t completed_jobs = 0;
 	size_t total_jobs = sorted_jobs->count;
-	os200_list queue = os200_list_new();
+	os200_list queue;
 	os200_result result = { 0.0 / 0.0, 0.0 / 0.0 };
 
 	os200_list_node current_node = NULL;
@@ -43,6 +43,8 @@ os200_result os200_robin_core(os200_list sorted_jobs, double quantum) {
 
 	if (!sorted_jobs->count)
 		return result;
+
+	queue = os200_list_new();
 
 	incoming_node = sorted_jobs->head;
 	incoming_job = incoming_node->data;
