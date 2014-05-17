@@ -27,8 +27,9 @@
 \section{Read me}
 
 This assignment should compile and run on any reasonably POSIX compliant
-environment. The assignment was tested and debugged using \texttt{gdb}, then
-checked for memory leaks and invalid accesses using \texttt{valgrind} on the
+environment. Where possible, \texttt{valgrind} and ThreadSanitizer have been
+used to check for and eliminate memory leaks, invalid accesses and thread race
+conditions. The assignment was tested and debugged using \texttt{gdb} on the
 following platforms:
 
 \begin{itemize}
@@ -42,7 +43,7 @@ following platforms:
 	      GNU \texttt{make} 3.80
 	\item \texttt{ling.comssa.org.au} ---
 	      Linux 3.2.0 x86-64,
-	      \texttt{clang} 3.0,
+	      \texttt{clang} 3.5,
 	      NetBSD \texttt{pmake} 1.111
 \end{itemize}
 

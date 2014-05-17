@@ -1,6 +1,9 @@
 CFLAGS=-std=c99 -Werror -Wall -Wextra -pedantic -g
 LDLIBS=-lpthread
 
+CFLAGS_TSAN=-std=c99 -Werror -Wall -Wextra -pedantic -g -fsanitize=thread -fPIE
+LDFLAGS_TSAN=-fsanitize=thread -pie
+
 BINARIES=robin sjf simulator
 
 OBJECTS_common = util.o list.o job.o result.o
@@ -13,13 +16,13 @@ all: binaries report.pdf
 binaries: $(BINARIES)
 
 robin: $(OBJECTS_robin)
-	$(CC) -o robin $(OBJECTS_robin) $(LDLIBS)
+	$(CC) $(LDFLAGS) $(OBJECTS_robin) $(LDLIBS) -o robin
 
 sjf: $(OBJECTS_sjf)
-	$(CC) -o sjf $(OBJECTS_sjf) $(LDLIBS)
+	$(CC) $(LDFLAGS) $(OBJECTS_sjf) $(LDLIBS) -o sjf
 
 simulator: $(OBJECTS_simulator)
-	$(CC) -o simulator $(OBJECTS_simulator) $(LDLIBS)
+	$(CC) $(LDFLAGS) $(OBJECTS_simulator) $(LDLIBS) -o simulator
 
 report.pdf: report.tex
 	pdflatex report.tex
