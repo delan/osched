@@ -62,11 +62,10 @@ int main(void) {
 		OS200_WAIT(robin_result);
 		OS200_WAIT(sjf_result);
 
-		puts("\nFor the Round Robin scheduler:");
+		fputs("RR:  ", stdout);
 		os200_result_print(robin_result);
-		puts("\nFor the Shortest Job First scheduler:");
+		fputs("SJF: ", stdout);
 		os200_result_print(sjf_result);
-		putchar('\n');
 
 		OS200_RESET(sjf_result);
 		OS200_RESET(robin_result);
