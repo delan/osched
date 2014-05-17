@@ -28,25 +28,3 @@ char *os200_strdup(const char *input) {
 	strcpy(result, input);
 	return result;
 }
-
-int os200_wait_real(
-	int *state_variable,
-	pthread_mutex_t *mutex,
-	pthread_cond_t *condition_variable
-) {
-	OS200_CHECK(pthread_mutex_lock, mutex);
-	while (*state_variable == 0)
-		OS200_CHECK(pthread_cond_wait, condition_variable, mutex);
-	return 1;
-}
-
-int os200_signal_real(
-	int *state_variable,
-	pthread_mutex_t *mutex,
-	pthread_cond_t *condition_variable
-) {
-	*state_variable = 1;
-	OS200_CHECK(pthread_cond_broadcast, condition_variable);
-	OS200_CHECK(pthread_mutex_unlock, mutex);
-	return 1;
-}

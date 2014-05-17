@@ -9,6 +9,9 @@
 
 OS200_LOCKED_GLOBAL(stderr);
 
+OS200_SYNCHRONISED_GLOBAL(robin);
+OS200_SYNCHRONISED_GLOBAL(sjf);
+
 OS200_NEW_SYNCHRONISED_GLOBAL(os200_result, robin_result);
 OS200_NEW_SYNCHRONISED_GLOBAL(os200_result, sjf_result);
 OS200_NEW_SYNCHRONISED_GLOBAL(char *, filename);
@@ -16,23 +19,25 @@ OS200_NEW_SYNCHRONISED_GLOBAL(char *, filename);
 void *worker(void *extra) {
 	os200_scheduler scheduler = * (os200_scheduler *) extra;
 	while (1) {
-		OS200_WAIT(filename);
-		char *filename_copy = os200_strdup(filename);
-		OS200_UNLOCK(filename);
-
+		char *filename_copy;
 		switch (scheduler) {
 		case OS200_SCHEDULER_ROBIN:
+			OS200_WAIT(robin);
+			filename_copy = os200_strdup(filename);
 			OS200_LOCK(robin_result);
 			robin_result = os200_robin_file(filename_copy);
 			OS200_SIGNAL(robin_result);
+			OS200_RESET(robin);
 			break;
 		case OS200_SCHEDULER_SJF:
+			OS200_WAIT(sjf);
+			filename_copy = os200_strdup(filename);
 			OS200_LOCK(sjf_result);
 			sjf_result = os200_sjf_file(filename_copy);
 			OS200_SIGNAL(sjf_result);
+			OS200_RESET(sjf);
 			break;
 		}
-
 		free(filename_copy);
 	}
 	return NULL;
@@ -51,10 +56,14 @@ int main(void) {
 	pthread_detach(robin_thread);
 	pthread_detach(sjf_thread);
 
+	OS200_LOCK(robin);
+	OS200_LOCK(sjf);
 	OS200_LOCK(filename);
 	filename = os200_read_line(prompt);
 	while (strlen(filename) && strcmp(filename, "QUIT")) {
-		OS200_SIGNAL(filename);
+		OS200_UNLOCK(filename);
+		OS200_SIGNAL(sjf);
+		OS200_SIGNAL(robin);
 		OS200_WAIT(robin_result);
 		OS200_WAIT(sjf_result);
 
@@ -64,13 +73,15 @@ int main(void) {
 		os200_result_print(sjf_result);
 		putchar('\n');
 
-		OS200_RESET(filename);
-		OS200_RESET_UNLOCK(robin_result);
-		OS200_RESET_UNLOCK(sjf_result);
+		OS200_RESET(sjf_result);
+		OS200_RESET(robin_result);
+		OS200_LOCK(robin);
+		OS200_LOCK(sjf);
 		OS200_LOCK(filename);
 		free(filename);
 		filename = os200_read_line(prompt);
 	}
 	free(filename);
+	OS200_UNLOCK(filename);
 	return 0;
 }

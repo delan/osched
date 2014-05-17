@@ -11,23 +11,30 @@
 
 OS200_LOCKED_EXTERN(stderr);
 
-#define OS200_DEBUG(FORMAT, ...) do { \
-	break; \
+#define OS200_PRINT(FORMAT, ...) do { \
 	pthread_mutex_lock(&stderr_mutex); \
-	fprintf(stderr, "%s: " FORMAT "\n", __func__, __VA_ARGS__); \
+	fprintf( \
+		stderr, \
+		"%s:%d: %s: " FORMAT "\n", \
+		__FILE__, \
+		__LINE__, \
+		__func__, \
+		__VA_ARGS__ \
+	); \
 	pthread_mutex_unlock(&stderr_mutex); \
 } while (0)
 
-#define OS200_IMPORTANT(FORMAT, ...) do { \
-	pthread_mutex_lock(&stderr_mutex); \
-	fprintf(stderr, "%s: " FORMAT "\n", __func__, __VA_ARGS__); \
-	pthread_mutex_unlock(&stderr_mutex); \
-} while (0)
+#ifdef DEBUG
+	#define OS200_DEBUG OS200_PRINT
+#else
+	#define OS200_DEBUG(...) do { \
+	} while (0)
+#endif
 
 #define OS200_CHECK(NAME, ...) do { \
 	int retval = NAME(__VA_ARGS__); \
 	if (retval) \
-		OS200_IMPORTANT("%s: %s", #NAME, strerror(retval)); \
+		OS200_PRINT("%s: %s", #NAME, strerror(retval)); \
 } while (0)
 
 #define OS200_SYNCHRONISED_GLOBAL(NAME) \
@@ -44,19 +51,22 @@ OS200_LOCKED_EXTERN(stderr);
 } while (0)
 
 #define OS200_WAIT(NAME) do { \
-	os200_wait_real( \
-		& NAME ## _ready, \
-		& NAME ## _mutex, \
-		& NAME ## _cond \
+	OS200_CHECK( \
+		pthread_mutex_lock, \
+		& NAME ## _mutex \
 	); \
+	while (NAME ## _ready == 0) \
+		OS200_CHECK( \
+			pthread_cond_wait, \
+			& NAME ## _cond, \
+			& NAME ## _mutex \
+		); \
 } while (0)
 
 #define OS200_SIGNAL(NAME) do { \
-	os200_signal_real( \
-		& NAME ## _ready, \
-		& NAME ## _mutex, \
-		& NAME ## _cond \
-	); \
+	NAME ## _ready = 1; \
+	OS200_CHECK(pthread_cond_broadcast, & NAME ## _cond); \
+	OS200_CHECK(pthread_mutex_unlock, & NAME ## _mutex); \
 } while (0)
 
 #define OS200_LOCK(NAME) do { \
@@ -69,10 +79,6 @@ OS200_LOCKED_EXTERN(stderr);
 
 #define OS200_RESET(NAME) do { \
 	NAME ## _ready = 0; \
-} while (0)
-
-#define OS200_RESET_UNLOCK(NAME) do { \
-	OS200_RESET(NAME); \
 	OS200_UNLOCK(NAME); \
 } while (0)
 
@@ -84,17 +90,5 @@ typedef enum os200_scheduler {
 char *os200_read_line(const char *prompt);
 
 char *os200_strdup(const char *s);
-
-int os200_wait_real(
-	int *state_variable,
-	pthread_mutex_t *mutex,
-	pthread_cond_t *condition_variable
-);
-
-int os200_signal_real(
-	int *state_variable,
-	pthread_mutex_t *mutex,
-	pthread_cond_t *condition_variable
-);
 
 #endif
