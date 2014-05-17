@@ -20,8 +20,6 @@ void *worker(void *extra) {
 		char *filename_copy = os200_strdup(filename);
 		OS200_UNLOCK(filename);
 
-		fprintf(stderr, "=== %d %s ===\n", scheduler, filename_copy);
-
 		switch (scheduler) {
 		case OS200_SCHEDULER_ROBIN:
 			OS200_LOCK(robin_result);
