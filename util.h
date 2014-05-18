@@ -82,34 +82,34 @@
 
 OS200_LOCK_EXTERN(stderr);
 
-#define OS200_PRINT(FORMAT, ...) do { \
-	pthread_mutex_lock(&stderr_mutex); \
-	fprintf( \
-		stderr, \
-		"%s:%d: %s: " FORMAT "\n", \
-		__FILE__, \
-		__LINE__, \
-		__func__, \
-		__VA_ARGS__ \
-	); \
-	pthread_mutex_unlock(&stderr_mutex); \
+#define OS200_PRINT(FORMAT, ...) do {                                  \
+	pthread_mutex_lock(&stderr_mutex);                             \
+	fprintf(                                                       \
+		stderr,                                                \
+		"%s:%d: %s: " FORMAT "\n",                             \
+		__FILE__,                                              \
+		__LINE__,                                              \
+		__func__,                                              \
+		__VA_ARGS__                                            \
+	);                                                             \
+	pthread_mutex_unlock(&stderr_mutex);                           \
 } while (0)
 
 #ifdef DEBUG
 	#define OS200_DEBUG OS200_PRINT
 #else
-	#define OS200_DEBUG(...) do { \
+	#define OS200_DEBUG(...) do {                                  \
 	} while (0)
 #endif
 
-#define OS200_CHECK(NAME, ...) do { \
-	int retval = NAME(__VA_ARGS__); \
-	if (retval) \
-		OS200_PRINT("%s: %s", #NAME, strerror(retval)); \
+#define OS200_CHECK(NAME, ...) do {                                    \
+	int retval = NAME(__VA_ARGS__);                                \
+	if (retval)                                                    \
+		OS200_PRINT("%s: %s", #NAME, strerror(retval));        \
 } while (0)
 
-#define OS200_UNUSED(NAME) do { \
-	((void) sizeof(NAME)); \
+#define OS200_UNUSED(NAME) do {                                        \
+	((void) sizeof(NAME));                                         \
 } while (0)
 
 char *os200_read_line(const char *prompt);
