@@ -53,8 +53,8 @@ int main(void) {
 
 	filename = os200_read_line(prompt);
 	while (strlen(filename) && strcmp(filename, "QUIT")) {
-		OS200_SYNC_SIGNAL(sjf);
 		OS200_SYNC_SIGNAL(robin);
+		OS200_SYNC_SIGNAL(sjf);
 
 		OS200_SYNC_WAIT(result);
 		os200_result_print(result);
