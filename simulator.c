@@ -11,7 +11,6 @@ OS200_LOCK_NEW(stderr);
 
 OS200_SYNC_NEW(robin);
 OS200_SYNC_NEW(sjf);
-OS200_SYNC_NEW(ready);
 OS200_SYNC_NEW(result);
 
 int quit;
@@ -20,7 +19,6 @@ os200_result result;
 
 void *robin_loop(void *extra) {
 	OS200_SYNC_LOCK(robin);
-	OS200_SYNC_SIGNAL(ready);
 	while (1) {
 		OS200_SYNC_WAIT(robin);
 		OS200_SYNC_RESET(robin);
@@ -34,7 +32,6 @@ void *robin_loop(void *extra) {
 
 void *sjf_loop(void *extra) {
 	OS200_SYNC_LOCK(sjf);
-	OS200_SYNC_SIGNAL(ready);
 	while (1) {
 		OS200_SYNC_WAIT(sjf);
 		OS200_SYNC_RESET(sjf);
@@ -51,16 +48,8 @@ int main(void) {
 	pthread_t robin_thread;
 	pthread_t sjf_thread;
 
-	OS200_SYNC_LOCK(ready);
-
 	pthread_create(&robin_thread, NULL, robin_loop, NULL);
 	pthread_create(&sjf_thread, NULL, sjf_loop, NULL);
-
-	OS200_SYNC_WAIT(ready);
-	OS200_SYNC_RESET(ready);
-
-	OS200_SYNC_WAIT(ready);
-	OS200_SYNC_RESET(ready);
 
 	filename = os200_read_line(prompt);
 	while (strlen(filename) && strcmp(filename, "QUIT")) {
