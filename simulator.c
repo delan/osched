@@ -18,26 +18,30 @@ char *filename;
 os200_result result;
 
 void *robin_loop(void *extra) {
+	os200_result robin_result;
 	OS200_LOCK_ACQUIRE(robin);
 	while (1) {
 		OS200_SYNC_WAIT(robin);
 		OS200_SYNC_RESET(robin);
 		if (quit)
 			break;
-		OS200_SYNC_SET_SIGNAL(result, os200_robin_file(filename));
+		robin_result = os200_robin_file(filename);
+		OS200_SYNC_SET_SIGNAL(result, robin_result);
 	}
 	OS200_UNUSED(extra);
 	return NULL;
 }
 
 void *sjf_loop(void *extra) {
+	os200_result sjf_result;
 	OS200_LOCK_ACQUIRE(sjf);
 	while (1) {
 		OS200_SYNC_WAIT(sjf);
 		OS200_SYNC_RESET(sjf);
 		if (quit)
 			break;
-		OS200_SYNC_SET_SIGNAL(result, os200_sjf_file(filename));
+		robin_result = os200_sjf_file(filename);
+		OS200_SYNC_SET_SIGNAL(result, sjf_result);
 	}
 	OS200_UNUSED(extra);
 	return NULL;
