@@ -10,7 +10,7 @@
 os200_result os200_robin_file(const char *filename) {
 	double quantum;
 	FILE *input;
-	os200_result result = { 0.0 / 0.0, 0.0 / 0.0 };
+	os200_result result = { OS200_SCHEDULER_ROBIN, 0.0 / 0.0, 0.0 / 0.0 };
 	os200_list sorted_jobs;
 
 	input = fopen(filename, "r");
@@ -36,7 +36,7 @@ os200_result os200_robin_core(os200_list sorted_jobs, double quantum) {
 	size_t completed_jobs = 0;
 	size_t total_jobs = sorted_jobs->count;
 	os200_list queue;
-	os200_result result = { 0.0 / 0.0, 0.0 / 0.0 };
+	os200_result result = { OS200_SCHEDULER_ROBIN, 0.0 / 0.0, 0.0 / 0.0 };
 
 	os200_list_node current_node = NULL;
 	os200_list_node incoming_node = NULL;

@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-OS200_LOCKED_GLOBAL(stderr);
+OS200_LOCK_NEW(stderr);
 
 int main(int argc, char **argv) {
 	const char prompt[] = "RR simulation";

@@ -7,44 +7,40 @@
 #include <unistd.h>
 #include <pthread.h>
 
-OS200_LOCKED_GLOBAL(stderr);
+OS200_LOCK_NEW(stderr);
 
-OS200_SYNCHRONISED_GLOBAL(robin);
-OS200_SYNCHRONISED_GLOBAL(sjf);
+OS200_SYNC_NEW(robin);
+OS200_SYNC_NEW(sjf);
+OS200_SYNC_NEW(ready);
+OS200_SYNC_NEW(result);
 
-OS200_NEW_SYNCHRONISED_GLOBAL(os200_result, robin_result);
-OS200_NEW_SYNCHRONISED_GLOBAL(os200_result, sjf_result);
-
-char *filename;
 int quit;
+char *filename;
+os200_result result;
 
 void *robin_loop(void *extra) {
+	OS200_SYNC_LOCK(robin);
+	OS200_SYNC_SIGNAL(ready);
 	while (1) {
-		OS200_WAIT(robin);
-		if (quit) {
-			OS200_RESET(robin);
+		OS200_SYNC_WAIT(robin);
+		OS200_SYNC_RESET(robin);
+		if (quit)
 			break;
-		}
-		OS200_LOCK(robin_result);
-		robin_result = os200_robin_file(filename);
-		OS200_SIGNAL(robin_result);
-		OS200_RESET(robin);
+		OS200_SYNC_SET_SIGNAL(result, os200_robin_file(filename));
 	}
 	OS200_UNUSED(extra);
 	return NULL;
 }
 
 void *sjf_loop(void *extra) {
+	OS200_SYNC_LOCK(sjf);
+	OS200_SYNC_SIGNAL(ready);
 	while (1) {
-		OS200_WAIT(sjf);
-		if (quit) {
-			OS200_RESET(sjf);
+		OS200_SYNC_WAIT(sjf);
+		OS200_SYNC_RESET(sjf);
+		if (quit)
 			break;
-		}
-		OS200_LOCK(sjf_result);
-		sjf_result = os200_sjf_file(filename);
-		OS200_SIGNAL(sjf_result);
-		OS200_RESET(sjf);
+		OS200_SYNC_SET_SIGNAL(result, os200_sjf_file(filename));
 	}
 	OS200_UNUSED(extra);
 	return NULL;
@@ -55,33 +51,36 @@ int main(void) {
 	pthread_t robin_thread;
 	pthread_t sjf_thread;
 
+	OS200_SYNC_LOCK(ready);
+
 	pthread_create(&robin_thread, NULL, robin_loop, NULL);
 	pthread_create(&sjf_thread, NULL, sjf_loop, NULL);
 
-	OS200_LOCK(robin);
-	OS200_LOCK(sjf);
+	OS200_SYNC_WAIT(ready);
+	OS200_SYNC_RESET(ready);
+
+	OS200_SYNC_WAIT(ready);
+	OS200_SYNC_RESET(ready);
+
 	filename = os200_read_line(prompt);
 	while (strlen(filename) && strcmp(filename, "QUIT")) {
-		OS200_SIGNAL(sjf);
-		OS200_SIGNAL(robin);
-		OS200_WAIT(robin_result);
-		OS200_WAIT(sjf_result);
+		OS200_SYNC_SIGNAL(sjf);
+		OS200_SYNC_SIGNAL(robin);
 
-		fputs("RR:  ", stdout);
-		os200_result_print(robin_result);
-		fputs("SJF: ", stdout);
-		os200_result_print(sjf_result);
+		OS200_SYNC_WAIT(result);
+		os200_result_print(result);
+		OS200_SYNC_RESET(result);
 
-		OS200_RESET(sjf_result);
-		OS200_RESET(robin_result);
-		OS200_LOCK(robin);
-		OS200_LOCK(sjf);
+		OS200_SYNC_WAIT(result);
+		os200_result_print(result);
+		OS200_SYNC_RESET(result);
+
 		free(filename);
 		filename = os200_read_line(prompt);
 	}
 	quit = 1;
-	OS200_SIGNAL(sjf);
-	OS200_SIGNAL(robin);
+	OS200_SYNC_SIGNAL(sjf);
+	OS200_SYNC_SIGNAL(robin);
 	free(filename);
 	putchar('\n');
 

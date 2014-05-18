@@ -33,9 +33,20 @@ os200_result os200_result_get(os200_list jobs) {
 }
 
 void os200_result_print(os200_result result) {
+	char *scheduler_prefix;
+	switch (result.scheduler) {
+	case OS200_SCHEDULER_ROBIN:
+		scheduler_prefix = "RR:  ";
+		break;
+	case OS200_SCHEDULER_SJF:
+		scheduler_prefix = "SJF: ";
+		break;
+	}
 	printf(
-		"average turnaround: %f, average waiting: %f\n",
-		result.average_turnaround, result.average_waiting
+		"%s average turnaround: %f, average waiting: %f\n",
+		scheduler_prefix,
+		result.average_turnaround,
+		result.average_waiting
 	);
 }
 

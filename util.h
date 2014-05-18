@@ -3,60 +3,84 @@
 
 #include <pthread.h>
 
-/* shorthand declarations for locks and condition variables */
+/* declare a new mutex lock */
 
-#define OS200_LOCKED_GLOBAL(NAME) \
+#define OS200_LOCK_NEW(NAME)                                           \
 	pthread_mutex_t NAME ## _mutex = PTHREAD_MUTEX_INITIALIZER
 
-#define OS200_LOCKED_EXTERN(NAME) \
+/* declare the existence of a global mutex lock */
+
+#define OS200_LOCK_EXTERN(NAME)                                        \
 	extern pthread_mutex_t NAME ## _mutex
 
-#define OS200_SYNCHRONISED_GLOBAL(NAME) \
-	int NAME ## _ready = 0; \
-	pthread_cond_t NAME ## _cond = PTHREAD_COND_INITIALIZER; \
-	OS200_LOCKED_GLOBAL(NAME)
+/* acquire a mutex lock */
 
-#define OS200_NEW_SYNCHRONISED_GLOBAL(TYPE, NAME) \
-	TYPE NAME; \
-	OS200_SYNCHRONISED_GLOBAL(NAME)
-
-/* basic locking and signalling patterns */
-
-#define OS200_WAIT(NAME) do { \
-	OS200_CHECK( \
-		pthread_mutex_lock, \
-		& NAME ## _mutex \
-	); \
-	while (NAME ## _ready == 0) \
-		OS200_CHECK( \
-			pthread_cond_wait, \
-			& NAME ## _cond, \
-			& NAME ## _mutex \
-		); \
+#define OS200_LOCK_ACQUIRE(NAME) do {                                  \
+	OS200_CHECK(pthread_mutex_lock, & NAME ## _mutex);             \
 } while (0)
 
-#define OS200_SIGNAL(NAME) do { \
-	NAME ## _ready = 1; \
-	OS200_CHECK(pthread_cond_broadcast, & NAME ## _cond); \
-	OS200_CHECK(pthread_mutex_unlock, & NAME ## _mutex); \
+/* release a mutex lock */
+
+#define OS200_LOCK_RELEASE(NAME) do {                                  \
+	OS200_CHECK(pthread_mutex_unlock, & NAME ## _mutex);           \
 } while (0)
 
-#define OS200_LOCK(NAME) do { \
-	OS200_CHECK(pthread_mutex_lock, & NAME ## _mutex); \
+/* declare a new synchroniser */
+
+#define OS200_SYNC_NEW(NAME)                                           \
+	int NAME ## _state = 0;                                        \
+	pthread_cond_t NAME ## _cond = PTHREAD_COND_INITIALIZER;       \
+	OS200_LOCK_NEW(NAME)
+
+/* reset the state of a synchroniser */
+
+#define OS200_SYNC_RESET(NAME) do {                                    \
+	NAME ## _state = 0;                                            \
 } while (0)
 
-#define OS200_UNLOCK(NAME) do { \
-	OS200_CHECK(pthread_mutex_unlock, & NAME ## _mutex); \
+/* acquire a synchroniser's mutex lock when its state is not set */
+
+#define OS200_SYNC_LOCK(NAME) do {                                     \
+	OS200_LOCK_ACQUIRE(NAME);                                      \
+	while (NAME ## _state) {                                       \
+		OS200_LOCK_RELEASE(NAME);                              \
+		OS200_LOCK_ACQUIRE(NAME);                              \
+	}                                                              \
 } while (0)
 
-#define OS200_RESET(NAME) do { \
-	NAME ## _ready = 0; \
-	OS200_UNLOCK(NAME); \
+/* wait until a synchroniser is signalled, acquiring its mutex lock */
+
+#define OS200_SYNC_WAIT(NAME) do {                                     \
+	while (NAME ## _state == 0)                                    \
+		OS200_CHECK(                                           \
+			pthread_cond_wait,                             \
+			& NAME ## _cond,                               \
+			& NAME ## _mutex                               \
+		);                                                     \
 } while (0)
 
-/* thread-safe printf that includes source filename, line and function */
+/* signal the thread listening on a synchroniser */
 
-OS200_LOCKED_EXTERN(stderr);
+#define OS200_SYNC_SIGNAL(NAME) do {                                   \
+	OS200_SYNC_LOCK(NAME);                                         \
+	NAME ## _state = 1;                                            \
+	OS200_CHECK(pthread_cond_signal, & NAME ## _cond);             \
+	OS200_LOCK_RELEASE(NAME);                                      \
+} while (0)
+
+/* set the value of a synchroniser's shared data, then signal */
+
+#define OS200_SYNC_SET_SIGNAL(NAME, VALUE) do {                        \
+	OS200_SYNC_LOCK(NAME);                                         \
+	NAME ## _state = 1;                                            \
+	NAME = VALUE;                                                  \
+	OS200_CHECK(pthread_cond_signal, & NAME ## _cond);             \
+	OS200_LOCK_RELEASE(NAME);                                      \
+} while (0)
+
+/* generic utilities */
+
+OS200_LOCK_EXTERN(stderr);
 
 #define OS200_PRINT(FORMAT, ...) do { \
 	pthread_mutex_lock(&stderr_mutex); \
@@ -78,15 +102,11 @@ OS200_LOCKED_EXTERN(stderr);
 	} while (0)
 #endif
 
-/* call a library function, check its return value and report errors */
-
 #define OS200_CHECK(NAME, ...) do { \
 	int retval = NAME(__VA_ARGS__); \
 	if (retval) \
 		OS200_PRINT("%s: %s", #NAME, strerror(retval)); \
 } while (0)
-
-/* generic utility functions */
 
 #define OS200_UNUSED(NAME) do { \
 	((void) sizeof(NAME)); \
