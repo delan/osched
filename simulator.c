@@ -72,8 +72,8 @@ int main(void) {
 		filename = os200_read_line(prompt);
 	}
 	quit = 1;
-	OS200_SYNC_SIGNAL(sjf);
 	OS200_SYNC_SIGNAL(robin);
+	OS200_SYNC_SIGNAL(sjf);
 	free(filename);
 	putchar('\n');
 
