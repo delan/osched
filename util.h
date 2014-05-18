@@ -44,6 +44,7 @@
 	OS200_LOCK_ACQUIRE(NAME);                                      \
 	while (NAME ## _state) {                                       \
 		OS200_LOCK_RELEASE(NAME);                              \
+		sched_yield();                                         \
 		OS200_LOCK_ACQUIRE(NAME);                              \
 	}                                                              \
 } while (0)
