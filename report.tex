@@ -88,53 +88,66 @@ is not freed due to a bug in the long obsolete GNU C Library 2.3.6.
 
 \section{Mutual exclusion and thread synchronisation}
 
-The coordination of reads and writes with the \texttt{robin\_result} and
-\texttt{sjf\_result} buffers involves the use of the following supporting
-data structures for each:
+The input and output buffers, known as \texttt{buffer1} and \texttt{buffer2}
+in the specification, are called \texttt{char *filename} and
+\texttt{os200\_result result} in the assignment code.
+
+Synchronisation of the execution and shared data between the parent thread and
+the two scheduler threads is achieved by using a combination of the following
+structures, which I'll henceforth refer to as a `synchroniser' for the lack of
+better terminology:
 
 \begin{itemize}
-	\item one binary state variable denoting `readiness' (\texttt{int}),
-	\item one POSIX mutex (\texttt{pthread\_mutex\_t}), and
-	\item one POSIX condition variable (\texttt{pthread\_cond\_t}).
+	\item one binary state variable (\texttt{int}),
+	\item one POSIX condition variable (\texttt{pthread\_cond\_t}), and
+	\item one POSIX mutex (\texttt{pthread\_mutex\_t}).
 \end{itemize}
 
-The main thread spawns the child threads, then waits for the two
-aforementioned buffers to be filled. This is achieved by using
-\texttt{OS200\_WAIT}, a function-like macro which:
+The condition variable allows one thread to wake another waiting thread, while
+the mutex is used to prevent race conditions in both the synchroniser and any
+associated shared data. The state variable initially seems unnecessary due to
+the existence of the condition variable, but it achieves at least two goals:
+
+\begin{itemize}
+	\item it provides an independent predicate to evaluate which represents
+	      the state of the signal, mitigating the effect of spurious
+	      wakeups, and
+	\item it allows a thread to start waiting on a synchroniser after a
+	      signal has been sent and still receive it, without that signal
+	      being lost.
+\end{itemize}
+
+The parent thread spawns the two child threads, but does not need to wait for
+the children to become ready before accepting the first filename. This is
+because the aforementioned state variable allows the parent to send the
+\texttt{robin} and \texttt{sjf} signals to wake up the children even before
+they start listening, without the children hanging.
+
+When a file is input and the two children are awakened, they proceed to
+simulate CPU scheduling with their respective algorithms. Once this completes,
+they use the \texttt{OS200\_SYNC\_SET\_SIGNAL} macro to safely:
 
 \begin{enumerate}
-	\item acquires the mutex associated with the buffer, then
-	\item calls \texttt{pthread\_cond\_wait}, which:
-	\begin{enumerate}
-		\item atomically releases the buffer's mutex, then
-		\item blocks until the condition variable is signalled, then
-		\item acquires the mutex associated with the buffer.
-	\end{enumerate}
+	\item acquire a lock on \texttt{result}, then
+	\item write the averages to the buffer, then
+	\item signal the parent thread to print the results.
 \end{enumerate}
 
-The reason why \texttt{pthread\_cond\_wait} is called repeatedly until a
-separate state variable becomes true, is because a condition variable alone is
-not enough to avoid spurious wakeups and race conditions. The child threads use
-the following procedure with \texttt{OS200\_LOCK} and \texttt{OS200\_SIGNAL}
-when writing results to their respective buffers:
+The parent thread simply waits twice on the same buffer to receive results from
+the two schedulers. This method has the perhaps imperfect consequence of making
+the order in which the scheduler results are printed non-deterministic.
 
-\begin{enumerate}
-	\item the mutex associated with the buffer is acquired, then
-	\item the output data containing average times is written, then
-	\item the state variable is set to indicate readiness, then
-	\item \texttt{pthread\_cond\_broadcast} is called to wake up the
-	      parent thread, then
-	\item the mutex associated with the buffer is released.
-\end{enumerate}
+To politely instruct the scheduler threads to terminate, the \texttt{quit}
+variable is set by the parent thread, and the children are once again awakened.
+The children see the value of \texttt{quit}, then exit accordingly. No explicit
+locking or synchronisation is required for the \texttt{filename} buffer because
+the workflow above provides the following guarantees:
 
-In the above instances, the mutex protects the condition variable, the state
-variable and the shared data itself. A similar technique is used in the
-opposite direction, to allow the main thread to wake up both child threads
-upon the entry of a filename. This involves the use of two additional sets of
-the three ancillary data structures, without shared data to protect. Because
-the filename entry and concurrent computation stages of the program are always
-sequential, mutual exclusion of accesses to the filename buffer is implicit,
-and no additional locking is required.
+\begin{itemize}
+	\item no child will be running while the \texttt{filename} is being
+	      written to, and
+	\item only the parent thread will ever write to \texttt{filename}.
+\end{itemize}
 
 \newpage
 
