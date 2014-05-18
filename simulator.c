@@ -40,7 +40,7 @@ void *sjf_loop(void *extra) {
 		OS200_SYNC_RESET(sjf);
 		if (quit)
 			break;
-		robin_result = os200_sjf_file(filename);
+		sjf_result = os200_sjf_file(filename);
 		OS200_SYNC_SET_SIGNAL(result, sjf_result);
 	}
 	OS200_UNUSED(extra);
